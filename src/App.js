@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
@@ -6,7 +5,7 @@ import './App.css';
 // Context
 import { ThemeContext } from './context/ThemeContext';
 
-// Layout Components
+// Layout
 import Header from './components/layout/Header';
 
 // Pages
@@ -16,6 +15,8 @@ import GrammarPage from './components/pages/GrammarPage';
 import VocabularyTestPage from './components/pages/VocabularyTestPage';
 import ReadingTestPage from './components/pages/ReadingTestPage';
 import ListeningTestPage from './components/pages/ListeningTestPage';
+import UserLogin from './components/pages/UserLogin';        // YENİ
+import UserRegister from './components/pages/UserRegister';  // YENİ
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -37,6 +38,8 @@ const App = () => {
           <Route path="/voca" element={<VocabularyTestPage />} />
           <Route path="/reading" element={<ReadingTestPage />} />
           <Route path="/listening" element={<ListeningTestPage />} />
+          <Route path="/login" element={<UserLogin />} />        {/* YENİ */}
+          <Route path="/register" element={<UserRegister />} />  {/* YENİ */}
         </Routes>
       </Router>
     </ThemeContext.Provider>
