@@ -31,7 +31,7 @@ const VocabularyTestPage = () => {
       setSubmitted(false);
       setScore(0);
     }
-  }, [selectedLevel]);
+  }, [selectedLevel, questions]);
 
   const handleBack = () => {
     setSelectedLevel(null);
