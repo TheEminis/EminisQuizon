@@ -1,5 +1,5 @@
 // src/components/pages/VocabularyTestPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Footer from '../layout/Footer';
 import { vocabularyLevels, vocabularyData } from '../../data/vocabularyData';
 
@@ -13,7 +13,10 @@ const VocabularyTestPage = () => {
   const levels = vocabularyLevels;
   const getVocabData = (level) => vocabularyData[level] || [];
 
-  const questions = selectedLevel ? getVocabData(selectedLevel) : [];
+  const questions = useMemo(
+  () => (selectedLevel ? getVocabData(selectedLevel) : []),
+  [selectedLevel]
+);
 
   useEffect(() => {
     if (selectedLevel && questions.length > 0) {
