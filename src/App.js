@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-
+import ScrollToTop from './components/ScrollToTop';
 // Context
 import { ThemeContext } from './context/ThemeContext';
 
@@ -30,6 +30,7 @@ const App = () => {
   return (
     <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
       <Router>
+        <ScrollToTop />
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
