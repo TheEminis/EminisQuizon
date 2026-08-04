@@ -7,6 +7,10 @@ import { ThemeContext } from './context/ThemeContext';
 
 // Layout
 import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+
+// Auth
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import HomePage from './components/pages/HomePage';
@@ -15,6 +19,8 @@ import GrammarPage from './components/pages/GrammarPage';
 import VocabularyTestPage from './components/pages/VocabularyTestPage';
 import ReadingTestPage from './components/pages/ReadingTestPage';
 import ListeningTestPage from './components/pages/ListeningTestPage';
+import Login from './components/pages/Login';
+import Register from './components/pages/Register';
 
 
 const App = () => {
@@ -33,15 +39,32 @@ const App = () => {
     <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
       <Router>
         <ScrollToTop />
-        <Header />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/quiz" element={<QuizPage />} />
-          <Route path="/grammar" element={<GrammarPage />} />
-          <Route path="/voca" element={<VocabularyTestPage />} />
-          <Route path="/reading" element={<ReadingTestPage />} />
-          <Route path="/listening" element={<ListeningTestPage />} />
-        </Routes>
+        <div className="page-wrapper">
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/quiz" element={
+                <ProtectedRoute><QuizPage /></ProtectedRoute>
+              } />
+              <Route path="/grammar" element={
+                <ProtectedRoute><GrammarPage /></ProtectedRoute>
+              } />
+              <Route path="/voca" element={
+                <ProtectedRoute><VocabularyTestPage /></ProtectedRoute>
+              } />
+              <Route path="/reading" element={
+                <ProtectedRoute><ReadingTestPage /></ProtectedRoute>
+              } />
+              <Route path="/listening" element={
+                <ProtectedRoute><ListeningTestPage /></ProtectedRoute>
+              } />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
       </Router>
     </ThemeContext.Provider>
   );
