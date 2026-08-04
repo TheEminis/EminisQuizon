@@ -1,10 +1,13 @@
 // src/components/pages/GrammarPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '../layout/Footer';
 import { grammarTopics } from '../../data/grammarData';
 
 const GrammarPage = () => {
   const [expandedTopic, setExpandedTopic] = useState(null);
+    useEffect(() => {
+  window.scrollTo(0, 0);
+}, [expandedTopic]);
 
   if (expandedTopic) {
     const topic = grammarTopics.find(t => t.id === expandedTopic);

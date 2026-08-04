@@ -15,18 +15,20 @@ import GrammarPage from './components/pages/GrammarPage';
 import VocabularyTestPage from './components/pages/VocabularyTestPage';
 import ReadingTestPage from './components/pages/ReadingTestPage';
 import ListeningTestPage from './components/pages/ListeningTestPage';
-import UserLogin from './components/pages/UserLogin';        // YENİ
-import UserRegister from './components/pages/UserRegister';  // YENİ
+
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
   
   useEffect(() => { 
-    document.body.className = darkMode ? 'dark' : 'light'; 
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(darkMode ? 'dark' : 'light');
+    document.body.classList.remove('dark', 'light');
+    document.body.classList.add(darkMode ? 'dark' : 'light');
+    document.documentElement.style.colorScheme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
   
   const toggleDarkMode = () => setDarkMode(!darkMode);
-  
   return (
     <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
       <Router>
@@ -39,8 +41,6 @@ const App = () => {
           <Route path="/voca" element={<VocabularyTestPage />} />
           <Route path="/reading" element={<ReadingTestPage />} />
           <Route path="/listening" element={<ListeningTestPage />} />
-          <Route path="/login" element={<UserLogin />} />        {/* YENİ */}
-          <Route path="/register" element={<UserRegister />} />  {/* YENİ */}
         </Routes>
       </Router>
     </ThemeContext.Provider>
