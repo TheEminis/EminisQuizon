@@ -1,7 +1,10 @@
 // src/components/common/QuizComponent.js
 import React, { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { recordTestResult } from '../../utils/testStats';
 
 const QuizComponent = ({ topic, level, onBack, getQuestions }) => {
+  const { currentUser } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(0);
@@ -22,6 +25,7 @@ const QuizComponent = ({ topic, level, onBack, getQuestions }) => {
     });
     setScore(newScore);
     setSubmitted(true);
+    recordTestResult(currentUser?.uid, newScore, currentQuestions.length);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

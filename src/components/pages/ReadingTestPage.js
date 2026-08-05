@@ -2,8 +2,11 @@
 import React, { useState } from 'react';
 import Footer from '../layout/Footer';
 import { readingLevels, readingTests } from '../../data/readingData';
+import { useAuth } from '../../hooks/useAuth';
+import { recordTestResult } from '../../utils/testStats';
 
 const ReadingTestPage = () => {
+  const { currentUser } = useAuth();
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -59,6 +62,9 @@ const ReadingTestPage = () => {
     }
     setScore(newScore);
     setSubmitted(true);
+    if (currentTest) {
+      recordTestResult(currentUser?.uid, newScore, currentTest.questions.length);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

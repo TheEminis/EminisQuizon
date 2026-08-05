@@ -4,6 +4,7 @@ import './App.css';
 import ScrollToTop from './components/common/ScrollToTop';
 // Context
 import { ThemeContext } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Layout
 import Header from './components/layout/Header';
@@ -37,35 +38,37 @@ const App = () => {
   const toggleDarkMode = () => setDarkMode(!darkMode);
   return (
     <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      <Router>
-        <ScrollToTop />
-        <div className="page-wrapper">
-          <Header />
-          <main>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/quiz" element={
-                <ProtectedRoute><QuizPage /></ProtectedRoute>
-              } />
-              <Route path="/grammar" element={
-                <ProtectedRoute><GrammarPage /></ProtectedRoute>
-              } />
-              <Route path="/voca" element={
-                <ProtectedRoute><VocabularyTestPage /></ProtectedRoute>
-              } />
-              <Route path="/reading" element={
-                <ProtectedRoute><ReadingTestPage /></ProtectedRoute>
-              } />
-              <Route path="/listening" element={
-                <ProtectedRoute><ListeningTestPage /></ProtectedRoute>
-              } />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop />
+          <div className="page-wrapper">
+            <Header />
+            <main>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/quiz" element={
+                  <ProtectedRoute><QuizPage /></ProtectedRoute>
+                } />
+                <Route path="/grammar" element={
+                  <ProtectedRoute><GrammarPage /></ProtectedRoute>
+                } />
+                <Route path="/voca" element={
+                  <ProtectedRoute><VocabularyTestPage /></ProtectedRoute>
+                } />
+                <Route path="/reading" element={
+                  <ProtectedRoute><ReadingTestPage /></ProtectedRoute>
+                } />
+                <Route path="/listening" element={
+                  <ProtectedRoute><ListeningTestPage /></ProtectedRoute>
+                } />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </AuthProvider>
     </ThemeContext.Provider>
   );
 };

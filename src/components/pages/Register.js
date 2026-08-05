@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase"; // firebase yolunu proyektinizə uyğun saxlayın
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../../firebase"; // firebase yolunu proyektinizə uyğun saxlayın
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -13,11 +15,12 @@ export default function Register() {
   const navigate = useNavigate();
 
   const passwordRules = [
-  { label: "Ən azı 8 simvol", valid: password.length >= 8 },
-  { label: "Kiçik hərf (a-z)", valid: /[a-z]/.test(password) },
-  { label: "Rəqəm (0-9)", valid: /[0-9]/.test(password) },
-  { label: "Xüsusi simvol (!@#$%^&*)", valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
-];
+    { label: "Ən azı 8 simvol", valid: password.length >= 8 },
+    { label: "Kiçik hərf (a-z)", valid: /[a-z]/.test(password) },
+    { label: "Rəqəm (0-9)", valid: /[0-9]/.test(password) },
+    { label: "Xüsusi simvol (!@#$%^&*)", valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+  ];
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
@@ -29,29 +32,49 @@ export default function Register() {
       return;
     }
 
+    if (!name.trim()) {
+      setError("Zəhmət olmasa adınızı daxil edin.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
-      setSuccess("Qeydiyyat uğurla tamamlandı! Giriş səhifəsinə yönləndirilirsiniz...");
-      setEmail("");
-      setPassword("");
+  const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+  const user = userCredential.user;
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (err) {
-      if (err.code === "auth/email-already-in-use") {
-        setError("Bu email ünvanı ilə artıq qeydiyyatdan keçilib.");
-      } else if (err.code === "auth/invalid-email") {
-        setError("Düzgün bir email ünvanı daxil edin.");
-      } else {
-        setError("Qeydiyyat zamanı xəta baş verdi. Yenidən cəhd edin.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Ad-soyadı Firebase Auth profilinə yaz
+  await updateProfile(user, { displayName: name.trim() });
+
+  // Qeydiyyat uğurludur - istifadəçini DƏRHAL ana səhifəyə yönləndir.
+  // Firestore profil sənədinin yaradılmasını gözləmirik ki, orada
+  // hər hansı xəta (məs. Firestore aktiv deyil / qaydalar) yönləndirməni bloklamasın.
+  navigate("/");
+
+  // İstifadəçi üçün Firestore-da profil sənədi yarat (test statistikası üçün)
+  // Bu, arxa planda, naviqasiyadan sonra baş verir.
+  setDoc(doc(db, "users", user.uid), {
+    displayName: name.trim(),
+    email: user.email,
+    testsTaken: 0,
+    correctAnswers: 0,
+    wrongAnswers: 0,
+    createdAt: serverTimestamp(),
+  }).catch((firestoreErr) => {
+    console.error("Firestore profil sənədi yaradılmadı:", firestoreErr);
+  });
+} catch (err) {
+  if (err.code === "auth/email-already-in-use") {
+    setError("Bu email ünvanı ilə artıq qeydiyyatdan keçilib.");
+  } else if (err.code === "auth/invalid-email") {
+    setError("Düzgün bir email ünvanı daxil edin.");
+  } else {
+    setError("Qeydiyyat zamanı xəta baş verdi. Yenidən cəhd edin.");
+  }
+} finally {
+  setLoading(false);
+}
+  }
 
   return (
     <div className="auth-container">
@@ -65,6 +88,18 @@ export default function Register() {
         {success && <div className="alert alert-success">{success}</div>}
 
         <form onSubmit={handleRegister} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="name">Ad Soyad</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Adınızı daxil edin"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input

@@ -2,8 +2,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Footer from '../layout/Footer';
 import { vocabularyLevels, vocabularyData } from '../../data/vocabularyData';
+import { useAuth } from '../../hooks/useAuth';
+import { recordTestResult } from '../../utils/testStats';
 
 const VocabularyTestPage = () => {
+  const { currentUser } = useAuth();
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -57,6 +60,7 @@ const VocabularyTestPage = () => {
     });
     setScore(s);
     setSubmitted(true);
+    recordTestResult(currentUser?.uid, s, questions.length);
   };
 
   const handleTryAgain = () => {
