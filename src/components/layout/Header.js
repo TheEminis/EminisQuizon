@@ -7,7 +7,7 @@ import { getInitials, getAvatarColor } from '../../utils/avatar';
 
 const Header = () => {
   const { darkMode, toggleDarkMode } = useTheme();
-  const { currentUser, stats, logout } = useAuth();
+  const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -96,21 +96,6 @@ const Header = () => {
                     </div>
                   </div>
 
-                  <div className="profile-stats">
-                    <div className="profile-stat">
-                      <span className="profile-stat-number">{stats.testsTaken}</span>
-                      <span className="profile-stat-label">İşlənən test</span>
-                    </div>
-                    <div className="profile-stat">
-                      <span className="profile-stat-number profile-stat-correct">{stats.correctAnswers}</span>
-                      <span className="profile-stat-label">Düz cavab</span>
-                    </div>
-                    <div className="profile-stat">
-                      <span className="profile-stat-number profile-stat-wrong">{stats.wrongAnswers}</span>
-                      <span className="profile-stat-label">Səhv cavab</span>
-                    </div>
-                  </div>
-
                   <button className="profile-logout-btn" onClick={handleLogout}>
                     Log out
                   </button>
@@ -158,20 +143,6 @@ const Header = () => {
                   {currentUser?.email && (
                     <span className="profile-email">{currentUser.email}</span>
                   )}
-                </div>
-              </div>
-              <div className="profile-stats">
-                <div className="profile-stat">
-                  <span className="profile-stat-number">{stats.testsTaken}</span>
-                  <span className="profile-stat-label">İşlənən test</span>
-                </div>
-                <div className="profile-stat">
-                  <span className="profile-stat-number profile-stat-correct">{stats.correctAnswers}</span>
-                  <span className="profile-stat-label">Düz cavab</span>
-                </div>
-                <div className="profile-stat">
-                  <span className="profile-stat-number profile-stat-wrong">{stats.wrongAnswers}</span>
-                  <span className="profile-stat-label">Səhv cavab</span>
                 </div>
               </div>
               <button className="profile-logout-btn" onClick={handleLogout}>

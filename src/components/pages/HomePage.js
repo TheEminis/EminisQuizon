@@ -1,7 +1,6 @@
 // src/components/pages/HomePage.js
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Footer from '../layout/Footer';
 
 const HomePage = () => {
   useEffect(() => {
@@ -30,7 +29,6 @@ const HomePage = () => {
         <div className="card"><h3>Why EminisQuizon?</h3><ul><li>Professional glassmorphism UI design</li><li>Smooth animations and transitions</li><li>Dark / Light mode support</li><li>Fully responsive on all devices</li><li>11 comprehensive grammar topics</li><li>5 difficulty levels from A1 to C1</li><li>15 unique questions per level per topic</li><li>Detailed explanations for each answer</li></ul></div>
         <div className="card"><h3>Our Vision</h3><p>To build a clean, motivating digital space where learning feels premium, modern, and enjoyable.</p></div>
       </section>
-      <Footer />
     </>
   );
 };

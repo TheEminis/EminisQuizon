@@ -1,20 +1,10 @@
-import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { useAuth } from "../hooks/useAuth";
 
 export default function ProtectedRoute({ children }) {
-  const [user, setUser] = useState(undefined);
+  const { currentUser, isLoadingAuth } = useAuth();
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
+  if (isLoadingAuth) return <p>Yüklənir...</p>;
 
-    return unsub;
-  }, []);
-
-  if (user === undefined) return <p>Yüklənir...</p>;
-
-  return user ? children : <Navigate to="/login" replace />;
+  return currentUser ? children : <Navigate to="/login" replace />;
 }

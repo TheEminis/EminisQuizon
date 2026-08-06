@@ -287,10 +287,6 @@ nav a:hover {
   color: #10b981;
 }
 
-.profile-stat-wrong {
-  color: #ef4444;
-}
-
 .profile-stat-label {
   font-size: 0.68rem;
   opacity: 0.75;

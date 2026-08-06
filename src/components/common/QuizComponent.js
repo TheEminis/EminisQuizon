@@ -1,20 +1,27 @@
 // src/components/common/QuizComponent.js
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { recordTestResult } from '../../utils/testStats';
+import { usePersistedState } from '../../hooks/usePersistedState';
 
 const QuizComponent = ({ topic, level, onBack, getQuestions }) => {
-  const { currentUser } = useAuth();
-  const [submitted, setSubmitted] = useState(false);
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(0);
-  const [showExplanations, setShowExplanations] = useState(false);
+  const { recordResult } = useAuth();
+
+  // Unique per topic+level so progress/results survive a page refresh or a
+  // login/logout, but different quizzes never mix their saved answers.
+  const storageKey = `emq_quiz_progress_${topic.id}_${level.id}`;
+  const [quizState, setQuizState] = usePersistedState(storageKey, {
+    submitted: false,
+    answers: {},
+    score: 0,
+    showExplanations: false,
+  });
+  const { submitted, answers, score, showExplanations } = quizState;
 
   const currentQuestions = getQuestions(topic.name, level.id);
 
   const handleAnswer = (qIndex, value) => {
     if (!submitted) {
-      setAnswers({ ...answers, [qIndex]: value });
+      setQuizState({ ...quizState, answers: { ...answers, [qIndex]: value } });
     }
   };
 
@@ -23,17 +30,17 @@ const QuizComponent = ({ topic, level, onBack, getQuestions }) => {
     currentQuestions.forEach((q, i) => {
       if (answers[i] === q.correct) newScore++;
     });
-    setScore(newScore);
-    setSubmitted(true);
-    recordTestResult(currentUser?.uid, newScore, currentQuestions.length);
+    setQuizState({ ...quizState, score: newScore, submitted: true });
+    recordResult(newScore, currentQuestions.length);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const toggleExplanations = () => {
+    setQuizState({ ...quizState, showExplanations: !showExplanations });
+  };
+
   const resetQuiz = () => {
-    setSubmitted(false);
-    setAnswers({});
-    setScore(0);
-    setShowExplanations(false);
+    setQuizState({ submitted: false, answers: {}, score: 0, showExplanations: false });
   };
 
   if (submitted) {
@@ -59,7 +66,7 @@ const QuizComponent = ({ topic, level, onBack, getQuestions }) => {
           <div className="result-grade">{grade}</div>
         </div>
         <div className="result-actions">
-          <button className="submit-btn" onClick={() => setShowExplanations(!showExplanations)}>
+          <button className="submit-btn" onClick={toggleExplanations}>
             {showExplanations ? 'Hide Explanations' : 'Show Explanations'}
           </button>
           <button className="submit-btn" onClick={resetQuiz}>Try Again</button>

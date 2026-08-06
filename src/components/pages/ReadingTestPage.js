@@ -1,18 +1,25 @@
 // src/components/pages/ReadingTestPage.js
-import React, { useState } from 'react';
-import Footer from '../layout/Footer';
+import React from 'react';
 import { readingLevels, readingTests } from '../../data/readingData';
 import { useAuth } from '../../hooks/useAuth';
-import { recordTestResult } from '../../utils/testStats';
+import { usePersistedState } from '../../hooks/usePersistedState';
 
 const ReadingTestPage = () => {
-  const { currentUser } = useAuth();
-  const [selectedLevel, setSelectedLevel] = useState(null);
-  const [selectedTest, setSelectedTest] = useState(null);
-  const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [showExplanations, setShowExplanations] = useState(false);
+  const { recordResult } = useAuth();
+  const [selectedLevel, setSelectedLevel] = usePersistedState('emq_reading_selectedLevel', null);
+  const [selectedTest, setSelectedTest] = usePersistedState('emq_reading_selectedTest', null);
+  // One combined key per level+test so refreshing mid-test or on the
+  // results screen (with wrong-answer explanations) restores exactly
+  // where the user left off - it no longer resets on refresh or on
+  // login/logout.
+  const progressKey = `emq_reading_progress_${selectedLevel}_${selectedTest}`;
+  const [progress, setProgress] = usePersistedState(progressKey, {
+    answers: {},
+    submitted: false,
+    score: 0,
+    showExplanations: false,
+  });
+  const { answers, submitted, score, showExplanations } = progress;
 
   const levels = readingLevels;
   const getTestsForLevel = (level) => readingTests[level] || [];
@@ -23,33 +30,21 @@ const ReadingTestPage = () => {
   const startTest = (level, testIndex) => {
     setSelectedLevel(level);
     setSelectedTest(testIndex);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
-    setShowExplanations(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const goBackToLevels = () => {
     setSelectedLevel(null);
     setSelectedTest(null);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
-    setShowExplanations(false);
   };
 
   const goBackToTests = () => {
     setSelectedTest(null);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
-    setShowExplanations(false);
   };
 
   const handleAnswer = (qIndex, value) => {
     if (!submitted) {
-      setAnswers({ ...answers, [qIndex]: value });
+      setProgress({ ...progress, answers: { ...answers, [qIndex]: value } });
     }
   };
 
@@ -60,19 +55,19 @@ const ReadingTestPage = () => {
         if (answers[i] === q.correct) newScore++;
       });
     }
-    setScore(newScore);
-    setSubmitted(true);
+    setProgress({ ...progress, score: newScore, submitted: true });
     if (currentTest) {
-      recordTestResult(currentUser?.uid, newScore, currentTest.questions.length);
+      recordResult(newScore, currentTest.questions.length);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const toggleExplanations = () => {
+    setProgress({ ...progress, showExplanations: !showExplanations });
+  };
+
   const resetQuiz = () => {
-    setSubmitted(false);
-    setAnswers({});
-    setScore(0);
-    setShowExplanations(false);
+    setProgress({ answers: {}, submitted: false, score: 0, showExplanations: false });
   };
 
   if (submitted && currentTest) {
@@ -99,7 +94,7 @@ const ReadingTestPage = () => {
           <div className="result-grade">{grade}</div>
         </div>
         <div className="result-actions">
-          <button className="submit-btn" onClick={() => setShowExplanations(!showExplanations)}>
+          <button className="submit-btn" onClick={toggleExplanations}>
             {showExplanations ? 'Hide Explanations' : 'Show Explanations'}
           </button>
           <button className="submit-btn" onClick={resetQuiz}>Try Again</button>
@@ -190,7 +185,6 @@ const ReadingTestPage = () => {
             </div>
           ))}
         </div>
-        <Footer />
       </>
     );
   }
@@ -220,7 +214,6 @@ const ReadingTestPage = () => {
           );
         })}
       </div>
-      <Footer />
     </>
   );
 };

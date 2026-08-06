@@ -58,7 +58,6 @@ export default function Register() {
     email: user.email,
     testsTaken: 0,
     correctAnswers: 0,
-    wrongAnswers: 0,
     createdAt: serverTimestamp(),
   }).catch((firestoreErr) => {
     console.error("Firestore profil sənədi yaradılmadı:", firestoreErr);

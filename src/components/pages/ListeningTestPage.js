@@ -1,19 +1,25 @@
 // src/components/pages/ListeningTestPage.js
-import React, { useState } from 'react';
-import Footer from '../layout/Footer';
+import React from 'react';
 import { listeningLevels, listeningTests } from '../../data/listeningData';
 import { useAuth } from '../../hooks/useAuth';
-import { recordTestResult } from '../../utils/testStats';
+import { usePersistedState } from '../../hooks/usePersistedState';
 
 const ListeningTestPage = () => {
-  const { currentUser } = useAuth();
-  const [selectedLevel, setSelectedLevel] = useState(null);
-  const [selectedTest, setSelectedTest] = useState(null);
-  const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [showExplanations, setShowExplanations] = useState(false);
-  const [showTranscriptState, setShowTranscriptState] = useState({});
+  const { recordResult } = useAuth();
+  const [selectedLevel, setSelectedLevel] = usePersistedState('emq_listening_selectedLevel', null);
+  const [selectedTest, setSelectedTest] = usePersistedState('emq_listening_selectedTest', null);
+  // Combined per level+test so a refresh or a login/logout restores the
+  // answers already picked and, once submitted, the results screen with
+  // the wrong-answer explanations - none of that used to survive a reload.
+  const progressKey = `emq_listening_progress_${selectedLevel}_${selectedTest}`;
+  const [progress, setProgress] = usePersistedState(progressKey, {
+    answers: {},
+    submitted: false,
+    score: 0,
+    showExplanations: false,
+  });
+  const { answers, submitted, score, showExplanations } = progress;
+  const [showTranscriptState, setShowTranscriptState] = usePersistedState('emq_listening_transcriptState', {});
 
   const levels = listeningLevels;
   const getTestsForLevel = (level) => listeningTests[level] || [];
@@ -31,33 +37,21 @@ const ListeningTestPage = () => {
   const startTest = (level, testIndex) => {
     setSelectedLevel(level);
     setSelectedTest(testIndex);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
-    setShowExplanations(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const goBackToLevels = () => {
     setSelectedLevel(null);
     setSelectedTest(null);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
-    setShowExplanations(false);
   };
 
   const goBackToTests = () => {
     setSelectedTest(null);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
-    setShowExplanations(false);
   };
 
   const handleAnswer = (qIndex, value) => {
     if (!submitted) {
-      setAnswers({ ...answers, [qIndex]: value });
+      setProgress({ ...progress, answers: { ...answers, [qIndex]: value } });
     }
   };
 
@@ -68,19 +62,19 @@ const ListeningTestPage = () => {
         if (answers[i] === q.correct) newScore++;
       });
     }
-    setScore(newScore);
-    setSubmitted(true);
+    setProgress({ ...progress, score: newScore, submitted: true });
     if (currentTest) {
-      recordTestResult(currentUser?.uid, newScore, currentTest.questions.length);
+      recordResult(newScore, currentTest.questions.length);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const toggleExplanations = () => {
+    setProgress({ ...progress, showExplanations: !showExplanations });
+  };
+
   const resetQuiz = () => {
-    setSubmitted(false);
-    setAnswers({});
-    setScore(0);
-    setShowExplanations(false);
+    setProgress({ answers: {}, submitted: false, score: 0, showExplanations: false });
   };
 
   // ==================== RESULTS SCREEN ====================
@@ -108,7 +102,7 @@ const ListeningTestPage = () => {
           <div className="result-grade">{grade}</div>
         </div>
         <div className="result-actions">
-          <button className="submit-btn" onClick={() => setShowExplanations(!showExplanations)}>
+          <button className="submit-btn" onClick={toggleExplanations}>
             {showExplanations ? 'Hide Explanations' : 'Show Explanations'}
           </button>
           <button className="submit-btn" onClick={resetQuiz}>Try Again</button>
@@ -219,7 +213,6 @@ const ListeningTestPage = () => {
             </div>
           ))}
         </div>
-        <Footer />
       </>
     );
   }
@@ -250,7 +243,6 @@ const ListeningTestPage = () => {
           );
         })}
       </div>
-      <Footer />
     </>
   );
 };

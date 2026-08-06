@@ -1,17 +1,24 @@
 // src/components/pages/VocabularyTestPage.js
-import React, { useState, useEffect, useMemo } from 'react';
-import Footer from '../layout/Footer';
+import React, { useEffect, useMemo } from 'react';
 import { vocabularyLevels, vocabularyData } from '../../data/vocabularyData';
 import { useAuth } from '../../hooks/useAuth';
-import { recordTestResult } from '../../utils/testStats';
+import { usePersistedState } from '../../hooks/usePersistedState';
 
 const VocabularyTestPage = () => {
-  const { currentUser } = useAuth();
-  const [selectedLevel, setSelectedLevel] = useState(null);
-  const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [questionOptions, setQuestionOptions] = useState([]);
+  const { recordResult } = useAuth();
+  const [selectedLevel, setSelectedLevel] = usePersistedState('emq_voca_selectedLevel', null);
+  // Combined per-level progress: answers, submitted state, score, and the
+  // randomized answer options themselves. Persisting the options too means
+  // the choices shown (and the "wrong answer" review) stay identical after
+  // a refresh or a login/logout instead of re-shuffling and losing state.
+  const progressKey = `emq_voca_progress_${selectedLevel}`;
+  const [progress, setProgress] = usePersistedState(progressKey, {
+    answers: {},
+    submitted: false,
+    score: 0,
+    questionOptions: [],
+  });
+  const { answers, submitted, score, questionOptions } = progress;
 
   const levels = vocabularyLevels;
   const getVocabData = (level) => vocabularyData[level] || [];
@@ -21,35 +28,33 @@ const VocabularyTestPage = () => {
   [selectedLevel]
 );
 
+  const generateOptions = () => questions.map((q, index) => {
+    const otherMeanings = questions
+      .filter((_, idx) => idx !== index)
+      .map(q => q.meaning)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3);
+    const options = [q.meaning, ...otherMeanings];
+    return options.sort(() => 0.5 - Math.random());
+  });
+
   useEffect(() => {
-    if (selectedLevel && questions.length > 0) {
-      const allOptions = questions.map((q, index) => {
-        const otherMeanings = questions
-          .filter((_, idx) => idx !== index)
-          .map(q => q.meaning)
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 3);
-        const options = [q.meaning, ...otherMeanings];
-        return options.sort(() => 0.5 - Math.random());
-      });
-      setQuestionOptions(allOptions);
-      setAnswers({});
-      setSubmitted(false);
-      setScore(0);
+    // Only shuffle new options the first time this level is opened - if
+    // progress was already restored from localStorage (options + answers),
+    // leave it alone so a refresh/login-logout doesn't wipe it out.
+    if (selectedLevel && questions.length > 0 && questionOptions.length === 0) {
+      setProgress(prev => ({ ...prev, questionOptions: generateOptions() }));
     }
-  }, [selectedLevel, questions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLevel, questions, questionOptions.length]);
 
   const handleBack = () => {
     setSelectedLevel(null);
-    setQuestionOptions([]);
-    setAnswers({});
-    setSubmitted(false);
-    setScore(0);
   };
 
   const handleAnswer = (qIndex, value) => {
     if (!submitted) {
-      setAnswers({ ...answers, [qIndex]: value });
+      setProgress({ ...progress, answers: { ...answers, [qIndex]: value } });
     }
   };
 
@@ -58,26 +63,18 @@ const VocabularyTestPage = () => {
     questions.forEach((q, i) => {
       if (answers[i] === q.meaning) s++;
     });
-    setScore(s);
-    setSubmitted(true);
-    recordTestResult(currentUser?.uid, s, questions.length);
+    setProgress({ ...progress, score: s, submitted: true });
+    recordResult(s, questions.length);
   };
 
   const handleTryAgain = () => {
     if (selectedLevel && questions.length > 0) {
-      const allOptions = questions.map((q, index) => {
-        const otherMeanings = questions
-          .filter((_, idx) => idx !== index)
-          .map(q => q.meaning)
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 3);
-        const options = [q.meaning, ...otherMeanings];
-        return options.sort(() => 0.5 - Math.random());
+      setProgress({
+        answers: {},
+        submitted: false,
+        score: 0,
+        questionOptions: generateOptions(),
       });
-      setQuestionOptions(allOptions);
-      setAnswers({});
-      setSubmitted(false);
-      setScore(0);
     }
   };
 
@@ -159,7 +156,6 @@ const VocabularyTestPage = () => {
           </div>
         ))}
       </div>
-      <Footer />
     </>
   );
 };

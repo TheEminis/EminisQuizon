@@ -1,12 +1,20 @@
 // src/components/pages/QuizPage.js
-import React, { useState } from 'react';
-import Footer from '../layout/Footer';
+import React from 'react';
 import QuizComponent from '../common/QuizComponent';
 import { quizTopics, levels } from '../../data/quizQuestions';
+import { usePersistedState } from '../../hooks/usePersistedState';
 
 const QuizPage = () => {
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState(null);
+  // Persisted by id (not the whole object) so a page refresh restores the
+  // same topic/level without ever going stale relative to quizQuestions.js.
+  const [selectedTopicId, setSelectedTopicId] = usePersistedState('emq_quiz_selectedTopicId', null);
+  const [selectedLevelId, setSelectedLevelId] = usePersistedState('emq_quiz_selectedLevelId', null);
+
+  const selectedTopic = quizTopics.find(t => t.id === selectedTopicId) || null;
+  const selectedLevel = levels.find(l => l.id === selectedLevelId) || null;
+
+  const setSelectedTopic = (topic) => setSelectedTopicId(topic ? topic.id : null);
+  const setSelectedLevel = (level) => setSelectedLevelId(level ? level.id : null);
 
   const getQuestions = (topicName, levelId) => {
     const allQuizzes = {
@@ -1017,7 +1025,6 @@ const QuizPage = () => {
             </div>
           ))}
         </div>
-        <Footer />
       </>
     );
   }
@@ -1040,7 +1047,6 @@ const QuizPage = () => {
           </div>
         ))}
       </div>
-      <Footer />
     </>
   );
 };

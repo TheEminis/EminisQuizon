@@ -1,10 +1,10 @@
 // src/components/pages/GrammarPage.js
-import React, { useState, useEffect } from 'react';
-import Footer from '../layout/Footer';
+import React, { useEffect } from 'react';
 import { grammarTopics } from '../../data/grammarData';
+import { usePersistedState } from '../../hooks/usePersistedState';
 
 const GrammarPage = () => {
-  const [expandedTopic, setExpandedTopic] = useState(null);
+  const [expandedTopic, setExpandedTopic] = usePersistedState('emq_grammar_expandedTopic', null);
     useEffect(() => {
   window.scrollTo(0, 0);
 }, [expandedTopic]);
@@ -25,8 +25,6 @@ const GrammarPage = () => {
             <pre className="rules-text">{topic.rules}</pre>
           </div>
         </div>
-        
-        <Footer />
       </>
     );
   }
@@ -51,7 +49,6 @@ const GrammarPage = () => {
           </div>
         ))}
       </div>
-      <Footer />
     </>
   );
 };
