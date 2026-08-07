@@ -134,6 +134,176 @@ nav a:hover {
   color: var(--primary);
 }
 
+nav a.active-link {
+  color: var(--primary);
+}
+
+nav a.active-link::after {
+  width: 100%;
+}
+
+/* ===== NAV DROPDOWN ("Tests") ===== */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15px;
+  font-family: inherit;
+  padding: 6px 0;
+}
+
+.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger.active-link {
+  color: var(--primary);
+}
+
+.nav-caret {
+  display: inline-block;
+  font-size: 11px;
+  transition: transform var(--transition);
+}
+
+.nav-caret.open {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 0;
+  min-width: 210px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 45px var(--shadow);
+  backdrop-filter: blur(12px);
+  padding: 8px;
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: profileDropIn 0.2s ease;
+}
+
+.nav-dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.nav-dropdown-menu a::after {
+  display: none;
+}
+
+.nav-dropdown-menu a:hover {
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--primary);
+}
+
+.nav-dropdown-icon {
+  font-size: 14px;
+}
+
+.nav-auth-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-cta {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff !important;
+  padding: 8px 18px !important;
+  border-radius: 999px;
+  font-size: 14px !important;
+}
+
+.nav-cta::after {
+  display: none;
+}
+
+.nav-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* ===== PROFILE DROPDOWN EXTRA LINK ===== */
+.profile-dropdown-link {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.08);
+  transition: var(--transition);
+}
+
+.profile-dropdown-link:hover {
+  background: rgba(79, 70, 229, 0.12);
+  color: var(--primary);
+}
+
+/* ===== MOBILE MENU GROUP ("Tests" accordion) ===== */
+.mobile-menu-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 16px;
+  font-family: inherit;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border-left: 3px solid transparent;
+  transition: var(--transition);
+}
+
+.mobile-menu-group-toggle:hover,
+.mobile-menu-group-toggle.open {
+  background: rgba(79, 70, 229, 0.08);
+  border-left-color: var(--primary);
+}
+
+.mobile-menu-group {
+  display: flex;
+  flex-direction: column;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding-left: 10px;
+  border-left: 2px solid var(--border);
+  margin-left: 18px;
+}
+
+.mobile-menu-group.open {
+  max-height: 400px;
+}
+
+.mobile-menu-group a {
+  font-size: 15px;
+  padding: 12px 16px;
+}
+
 /* ===== HEADER RIGHT - Dark Mode + Hamburger ===== */
 .header-right {
   display: flex;
@@ -1209,8 +1379,8 @@ body.dark .hero h2 {
    ==================== RESPONSIVE ============================
    ============================================================ */
 
-/* ========== TABLET & MOBILE (max-width: 768px) ========== */
-@media (max-width: 768px) {
+/* ========== TABLET & MOBILE (max-width: 900px) ========== */
+@media (max-width: 900px) {
   /* HEADER */
   .main-header {
     padding: 10px 16px;
@@ -2106,4 +2276,222 @@ body.dark .hero h2 {
   .auth-header h2 {
     font-size: 22px;
   }
+}
+
+/* ==================== LEVEL TEST ==================== */
+.level-test-intro {
+  text-align: center;
+}
+
+.level-test-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 26px 0 6px;
+}
+
+.level-test-info-card {
+  background: rgba(128, 128, 128, 0.08);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.level-test-info-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.level-test-info-label {
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+
+.level-test-section {
+  margin-top: 30px;
+}
+
+.level-test-section-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.level-result-card {
+  text-align: center;
+}
+
+.level-badge-big {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 800;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.ielts-estimate {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+/* ==================== LEADERBOARD ==================== */
+.leaderboard-container {
+  max-width: 900px;
+}
+
+.leaderboard-status {
+  text-align: center;
+  padding: 40px 20px;
+  opacity: 0.75;
+  font-weight: 600;
+}
+
+.leaderboard-table {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 50px 2fr 1.4fr 1.3fr 0.8fr;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(128, 128, 128, 0.06);
+  border: 1px solid var(--border);
+}
+
+.leaderboard-head {
+  background: transparent;
+  border: none;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  font-weight: 700;
+  padding: 0 16px;
+}
+
+.leaderboard-row-me {
+  border-color: var(--primary);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.lb-rank {
+  font-weight: 800;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.lb-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lb-player .profile-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.lb-player-name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-you-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.lb-level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lb-level-badge {
+  flex-shrink: 0;
+}
+
+.lb-level-label {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-score {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.lb-percentage {
+  opacity: 0.65;
+  font-weight: 500;
+  font-size: 0.82rem;
+}
+
+.lb-ielts {
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .level-test-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .leaderboard-row {
+    grid-template-columns: 34px 2fr 1fr;
+    grid-template-areas:
+      "rank player player"
+      "rank level score";
+    row-gap: 8px;
+  }
+
+  .leaderboard-head {
+    display: none;
+  }
+
+  .lb-rank { grid-area: rank; }
+  .lb-player { grid-area: player; }
+  .lb-level { grid-area: level; }
+  .lb-score { grid-area: score; text-align: right; }
+  .lb-ielts { display: none; }
 }

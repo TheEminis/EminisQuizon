@@ -22,6 +22,8 @@ import ReadingTestPage from './components/pages/ReadingTestPage';
 import ListeningTestPage from './components/pages/ListeningTestPage';
 import Login from './components/pages/Login';
 import Register from './components/pages/Register';
+import LevelTestPage from './components/pages/LevelTestPage';
+import LeaderboardPage from './components/pages/LeaderboardPage';
 
 
 const App = () => {
@@ -60,6 +62,12 @@ const App = () => {
                 } />
                 <Route path="/listening" element={
                   <ProtectedRoute><ListeningTestPage /></ProtectedRoute>
+                } />
+                <Route path="/level-test" element={
+                  <ProtectedRoute><LevelTestPage /></ProtectedRoute>
+                } />
+                <Route path="/leaderboard" element={
+                  <ProtectedRoute><LeaderboardPage /></ProtectedRoute>
                 } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

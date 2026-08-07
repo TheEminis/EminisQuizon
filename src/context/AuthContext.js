@@ -1,9 +1,31 @@
 // src/context/AuthContext.js
 import React, { createContext, useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, setDoc, onSnapshot, increment, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, onSnapshot, increment, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { readLocalStats, writeLocalStats, addLocalTestResult, DEFAULT_STATS } from "../utils/localStats";
+
+const isBrowser = typeof window !== "undefined" && !!window.localStorage;
+const levelResultKey = (uid) => `emq_level_result_${uid || "guest"}`;
+
+const readLocalLevelResult = (uid) => {
+  if (!isBrowser) return null;
+  try {
+    const raw = window.localStorage.getItem(levelResultKey(uid));
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return null;
+  }
+};
+
+const writeLocalLevelResult = (uid, result) => {
+  if (!isBrowser) return;
+  try {
+    window.localStorage.setItem(levelResultKey(uid), JSON.stringify(result));
+  } catch (err) {
+    // ignore
+  }
+};
 
 export const AuthContext = createContext();
 
@@ -13,6 +35,11 @@ export const AuthProvider = ({ children }) => {
   // Statistika Firestore-dan hələ gəlməyib - bunu bilmək lazımdır ki,
   // "0" rəqəmini həqiqi məlumat kimi yox, yüklənmə anı kimi göstərək.
   const [isStatsLoading, setIsStatsLoading] = useState(true);
+  // Səviyyə testinin ən yaxşı nəticəsi (leaderboard-da göstərilən eyni
+  // dəyər). localStorage-a keşlənir ki, refresh zamanı itməsin.
+  const [levelResult, setLevelResult] = useState(() =>
+    isBrowser ? JSON.parse(window.localStorage.getItem(levelResultKey(null)) || "null") : null
+  );
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
@@ -22,6 +49,7 @@ export const AuthProvider = ({ children }) => {
         // saxlanmış qonaq statistikasını göstər, sıfır yox.
         setStats(readLocalStats(null));
         setIsStatsLoading(false);
+        setLevelResult(readLocalLevelResult(null));
       }
     });
     return unsubAuth;
@@ -35,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     // və şəbəkə problemi olsa belə son bilinən rəqəmlər qalacaq.
     setStats(readLocalStats(currentUser.uid));
     setIsStatsLoading(true);
+    setLevelResult(readLocalLevelResult(currentUser.uid));
 
     const userRef = doc(db, "users", currentUser.uid);
     const unsubSnap = onSnapshot(
@@ -60,6 +89,24 @@ export const AuthProvider = ({ children }) => {
         setStats(merged);
         writeLocalStats(currentUser.uid, merged);
         setIsStatsLoading(false);
+
+        // Səviyyə testinin ən yaxşı nəticəsini də eyni məntiqlə saxla:
+        // Firestore-dakı və yerli keşdəki nəticələrdən faizi daha yüksək
+        // olanı göstər, sonra ikisini sinxronlaşdır.
+        if (snap.exists() && snap.data().levelTestBestPercentage != null) {
+          const fsLevel = {
+            percentage: snap.data().levelTestBestPercentage,
+            score: snap.data().levelTestBestScore,
+            total: snap.data().levelTestBestTotal,
+            band: snap.data().levelTestBestBand,
+            ieltsBand: snap.data().levelTestBestIelts,
+          };
+          const cachedLevel = readLocalLevelResult(currentUser.uid);
+          const betterLevel =
+            !cachedLevel || fsLevel.percentage >= cachedLevel.percentage ? fsLevel : cachedLevel;
+          setLevelResult(betterLevel);
+          writeLocalLevelResult(currentUser.uid, betterLevel);
+        }
       },
       (err) => {
         console.error("Profil statistikası oxunmadı:", err);
@@ -98,13 +145,67 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
+  // Səviyyə (level) testinin nəticəsini qeyd edir. Nəticə HƏMİŞƏ
+  // localStorage-a yazılır (refresh-dən sonra da qalsın deyə). Giriş
+  // edilibsə, həm də Firestore-dakı "users/{uid}" sənədinə yazılır ki,
+  // Leaderboard səhifəsi bütün istifadəçilərin ən yaxşı nəticəsini
+  // oxuya bilsin. Yalnız yeni nəticə əvvəlkindən yaxşıdırsa "best"
+  // sahələri yenilənir - əks halda köhnə ən yaxşı nəticə qorunur.
+  const recordLevelTestResult = useCallback(
+    async (result) => {
+      const uid = currentUser?.uid || null;
+
+      const cached = readLocalLevelResult(uid);
+      const isNewBest = !cached || result.percentage >= cached.percentage;
+      const bestToStore = isNewBest ? result : cached;
+      writeLocalLevelResult(uid, bestToStore);
+      setLevelResult(bestToStore);
+
+      if (!uid) return;
+
+      try {
+        const userRef = doc(db, "users", uid);
+        const snap = await getDoc(userRef);
+        const prevBestPercentage = snap.exists() ? snap.data().levelTestBestPercentage : undefined;
+        const isNewFirestoreBest = prevBestPercentage == null || result.percentage >= prevBestPercentage;
+
+        await setDoc(
+          userRef,
+          {
+            displayName: currentUser.displayName || currentUser.email || "İstifadəçi",
+            levelTestLastPercentage: result.percentage,
+            levelTestLastBand: result.band,
+            levelTestLastAt: serverTimestamp(),
+            levelTestAttempts: increment(1),
+            ...(isNewFirestoreBest
+              ? {
+                  levelTestBestPercentage: result.percentage,
+                  levelTestBestScore: result.score,
+                  levelTestBestTotal: result.total,
+                  levelTestBestBand: result.band,
+                  levelTestBestIelts: result.ieltsBand,
+                  levelTestBestAt: serverTimestamp(),
+                }
+              : {}),
+          },
+          { merge: true }
+        );
+      } catch (err) {
+        console.error("Səviyyə testi nəticəsi Firestore-a saxlanılmadı:", err);
+      }
+    },
+    [currentUser]
+  );
+
   const value = {
     currentUser,
     isLoadingAuth: currentUser === undefined,
     stats,
     isStatsLoading,
+    levelResult,
     logout,
     recordResult,
+    recordLevelTestResult,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

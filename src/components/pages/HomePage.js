@@ -21,13 +21,13 @@ const HomePage = () => {
         <p>EminisQuizon is a modern educational platform focused on clarity, motivation, and intelligent learning design. Master English grammar, expand your vocabulary, and test your knowledge with interactive quizzes.</p>
         <div className="hero-buttons">
           <Link to="/quiz" className="hero-btn primary">Start Quiz</Link>
-          <Link to="/grammar" className="hero-btn secondary">Learn Grammar</Link>
+          <Link to="/level-test" className="hero-btn secondary">Take Level Test</Link>
         </div>
       </div>
       <section className="home-sections">
         <div className="card"><h3>Modern Learning Experience</h3><p>Designed with simplicity and focus in mind, EminisQuizon removes distractions and helps students stay productive.</p></div>
-        <div className="card"><h3>Why EminisQuizon?</h3><ul><li>Professional glassmorphism UI design</li><li>Smooth animations and transitions</li><li>Dark / Light mode support</li><li>Fully responsive on all devices</li><li>11 comprehensive grammar topics</li><li>5 difficulty levels from A1 to C1</li><li>15 unique questions per level per topic</li><li>Detailed explanations for each answer</li></ul></div>
-        <div className="card"><h3>Our Vision</h3><p>To build a clean, motivating digital space where learning feels premium, modern, and enjoyable.</p></div>
+        <div className="card"><h3>Why EminisQuizon?</h3><ul><li>Professional glassmorphism UI design</li><li>Smooth animations and transitions</li><li>Dark / Light mode support</li><li>Fully responsive on all devices</li><li>11 comprehensive grammar topics</li><li>5 difficulty levels from A1 to C1</li><li>15 unique questions per level per topic</li><li>IELTS-style Level Test with a live Leaderboard</li><li>Detailed explanations for each answer</li></ul></div>
+        <div className="card"><h3>Find Your Level</h3><p>Take the IELTS-style Level Test to see exactly where you stand, from A1 to C1, then check the <Link to="/leaderboard">Leaderboard</Link> to see how you compare.</p></div>
       </section>
     </>
   );
