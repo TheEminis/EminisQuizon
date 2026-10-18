@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../firebase"; // firebase yolunu proyektinizə uyğun saxlayın
 import { useNavigate, Link } from "react-router-dom";
@@ -17,6 +17,7 @@ export default function Register() {
   const passwordRules = [
     { label: "Ən azı 8 simvol", valid: password.length >= 8 },
     { label: "Kiçik hərf (a-z)", valid: /[a-z]/.test(password) },
+    { label: "Böyük hərf (A-Z)", valid: /[A-Z]/.test(password) },
     { label: "Rəqəm (0-9)", valid: /[0-9]/.test(password) },
     { label: "Xüsusi simvol (!@#$%^&*)", valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
   ];
@@ -45,6 +46,9 @@ export default function Register() {
 
   // Ad-soyadı Firebase Auth profilinə yaz
   await updateProfile(user, { displayName: name.trim() });
+
+  // Təsdiq emaili (arxa planda; xəta olsa qeydiyyatı bloklamır)
+  sendEmailVerification(user).catch((e3) => console.warn("Təsdiq emaili göndərilmədi:", e3));
 
   // Qeydiyyat uğurludur - istifadəçini DƏRHAL ana səhifəyə yönləndir.
   // Firestore profil sənədinin yaradılmasını gözləmirik ki, orada

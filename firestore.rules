@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Sayğac sahəsi bir yazıda ən çox `max` qədər artmalı və heç vaxt azalmamalıdır
+    function counterOk(field, max) {
+      let before = resource == null ? 0 : resource.data.get(field, 0);
+      let after = request.resource.data.get(field, 0);
+      return after is int && after >= before && (after - before) <= max;
+    }
+
+    // Şəxsi profil: yalnız sahibi oxuya/yaza bilər (email burada qalır, görünmür)
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && counterOk('testsTaken', 1)
+        && counterOk('correctAnswers', 200)
+        && request.resource.data.get('levelTestBestPercentage', 0) >= 0
+        && request.resource.data.get('levelTestBestPercentage', 0) <= 100;
+      allow delete: if false;
+    }
+
+    // İctimai leaderboard: bütün giriş etmişlər oxuya bilər, yalnız ad + bal saxlanır
+    match /leaderboard/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+             'displayName', 'levelTestBestPercentage', 'levelTestBestScore',
+             'levelTestBestTotal', 'levelTestBestBand', 'levelTestBestIelts', 'updatedAt'])
+        && request.resource.data.levelTestBestPercentage is int
+        && request.resource.data.levelTestBestPercentage >= 0
+        && request.resource.data.levelTestBestPercentage <= 100
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 80;
+      allow delete: if isOwner(uid);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

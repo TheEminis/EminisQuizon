@@ -142,7 +142,7 @@ const ListeningTestPage = () => {
         {/* ==================== AUDIO PLAYER ==================== */}
         <div className="audio-player-container">
           <h3>🎵 Listen to the audio carefully:</h3>
-          <audio controls className="audio-player" src={currentTest.audioSrc}>
+          <audio controls preload="none" className="audio-player" src={currentTest.audioSrc}>
             Your browser does not support the audio element.
           </audio>
           

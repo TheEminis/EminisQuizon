@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import ScrollToTop from './components/common/ScrollToTop';
@@ -13,18 +13,24 @@ import Footer from './components/layout/Footer';
 // Auth
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
+// Pages (lazy: hər səhifə yalnız lazım olanda yüklənir)
 import HomePage from './components/pages/HomePage';
-import QuizPage from './components/pages/QuizPage';
-import GrammarPage from './components/pages/GrammarPage';
-import VocabularyTestPage from './components/pages/VocabularyTestPage';
-import ReadingTestPage from './components/pages/ReadingTestPage';
-import ListeningTestPage from './components/pages/ListeningTestPage';
-import Login from './components/pages/Login';
-import Register from './components/pages/Register';
-import LevelTestPage from './components/pages/LevelTestPage';
-import LeaderboardPage from './components/pages/LeaderboardPage';
+const QuizPage = lazy(() => import('./components/pages/QuizPage'));
+const GrammarPage = lazy(() => import('./components/pages/GrammarPage'));
+const VocabularyTestPage = lazy(() => import('./components/pages/VocabularyTestPage'));
+const ReadingTestPage = lazy(() => import('./components/pages/ReadingTestPage'));
+const ListeningTestPage = lazy(() => import('./components/pages/ListeningTestPage'));
+const LevelTestPage = lazy(() => import('./components/pages/LevelTestPage'));
+const LeaderboardPage = lazy(() => import('./components/pages/LeaderboardPage'));
+const Login = lazy(() => import('./components/pages/Login'));
+const Register = lazy(() => import('./components/pages/Register'));
+const ForgotPassword = lazy(() => import('./components/pages/ForgotPassword'));
 
+const PageLoader = () => (
+  <div className="page-loading" role="status" aria-label="Yüklənir">
+    <div className="spinner-lg" />
+  </div>
+);
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -46,14 +52,13 @@ const App = () => {
           <div className="page-wrapper">
             <Header />
             <main>
+              <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/quiz" element={
                   <ProtectedRoute><QuizPage /></ProtectedRoute>
                 } />
-                <Route path="/grammar" element={
-                  <ProtectedRoute><GrammarPage /></ProtectedRoute>
-                } />
+                <Route path="/grammar" element={<GrammarPage />} />
                 <Route path="/voca" element={
                   <ProtectedRoute><VocabularyTestPage /></ProtectedRoute>
                 } />
@@ -71,7 +76,9 @@ const App = () => {
                 } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>
+              </Suspense>
             </main>
             <Footer />
           </div>

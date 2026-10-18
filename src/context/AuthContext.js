@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }) => {
     setLevelResult(readLocalLevelResult(currentUser.uid));
 
     const userRef = doc(db, "users", currentUser.uid);
+    let leaderboardSynced = false;
     const unsubSnap = onSnapshot(
       userRef,
       (snap) => {
@@ -106,6 +107,25 @@ export const AuthProvider = ({ children }) => {
             !cachedLevel || fsLevel.percentage >= cachedLevel.percentage ? fsLevel : cachedLevel;
           setLevelResult(betterLevel);
           writeLocalLevelResult(currentUser.uid, betterLevel);
+
+          // Köhnə hesablar: nəticə yalnız "users" sənədində idi. Leaderboard indi
+          // ayrı "leaderboard" kolleksiyasından oxuyur - bir dəfə köçürürük.
+          if (!leaderboardSynced) {
+            leaderboardSynced = true;
+            setDoc(
+              doc(db, "leaderboard", currentUser.uid),
+              {
+                displayName: currentUser.displayName || currentUser.email || "İstifadəçi",
+                levelTestBestPercentage: fsLevel.percentage,
+                levelTestBestScore: fsLevel.score,
+                levelTestBestTotal: fsLevel.total,
+                levelTestBestBand: fsLevel.band,
+                levelTestBestIelts: fsLevel.ieltsBand ?? null,
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true }
+            ).catch((e) => console.warn("Leaderboard sinxronu alınmadı:", e));
+          }
         }
       },
       (err) => {
@@ -168,6 +188,23 @@ export const AuthProvider = ({ children }) => {
         const snap = await getDoc(userRef);
         const prevBestPercentage = snap.exists() ? snap.data().levelTestBestPercentage : undefined;
         const isNewFirestoreBest = prevBestPercentage == null || result.percentage >= prevBestPercentage;
+
+        if (isNewFirestoreBest) {
+          // Leaderboard üçün ayrı sənəd: yalnız ad və bal (email YOX)
+          await setDoc(
+            doc(db, "leaderboard", uid),
+            {
+              displayName: currentUser.displayName || currentUser.email || "İstifadəçi",
+              levelTestBestPercentage: result.percentage,
+              levelTestBestScore: result.score,
+              levelTestBestTotal: result.total,
+              levelTestBestBand: result.band,
+              levelTestBestIelts: result.ieltsBand ?? null,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+        }
 
         await setDoc(
           userRef,

@@ -2495,3 +2495,13 @@ body.dark .hero h2 {
   .lb-score { grid-area: score; text-align: right; }
   .lb-ielts { display: none; }
 }
+
+
+/* Logo link (h1 içində) */
+.main-header h1 .logo-link { color: inherit; text-decoration: none; cursor: pointer; }
+.main-header h1 .logo-link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 4px; }
+
+/* Yüklənmə spinneri */
+.page-loading { display:flex; align-items:center; justify-content:center; min-height:50vh; }
+.page-loading .spinner-lg { width:40px; height:40px; border-radius:50%; border:4px solid rgba(128,128,128,.25); border-top-color: #4f46e5; animation: emq-spin .8s linear infinite; }
+@keyframes emq-spin { to { transform: rotate(360deg); } }

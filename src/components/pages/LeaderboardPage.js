@@ -19,7 +19,7 @@ const LeaderboardPage = () => {
   // and up to date after a refresh (it never depends on local component
   // state that would be lost on reload).
   useEffect(() => {
-    const q = query(collection(db, 'users'), orderBy('levelTestBestPercentage', 'desc'), limit(50));
+    const q = query(collection(db, 'leaderboard'), orderBy('levelTestBestPercentage', 'desc'), limit(50));
     const unsub = onSnapshot(
       q,
       (snap) => {
@@ -50,9 +50,7 @@ const LeaderboardPage = () => {
 
       {!loading && error && (
         <div className="alert alert-error">
-          The leaderboard couldn't be loaded right now. This usually means the Firestore security
-          rules for the <code>users</code> collection don't yet allow signed-in users to read
-          other players' scores. Please try again shortly, or check the project's Firestore rules.
+          The leaderboard couldn't be loaded right now. Please try again shortly.
         </div>
       )}
 
@@ -86,7 +84,7 @@ const LeaderboardPage = () => {
                     className="profile-avatar"
                     style={{ background: getAvatarColor(row.uid) }}
                   >
-                    {getInitials(row.displayName, row.email)}
+                    {getInitials(row.displayName)}
                   </span>
                   <span className="lb-player-name">
                     {name} {isMe && <span className="lb-you-tag">You</span>}

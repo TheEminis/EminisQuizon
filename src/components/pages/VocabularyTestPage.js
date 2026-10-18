@@ -4,6 +4,16 @@ import { vocabularyLevels, vocabularyData } from '../../data/vocabularyData';
 import { useAuth } from '../../hooks/useAuth';
 import { usePersistedState } from '../../hooks/usePersistedState';
 
+// Fisher-Yates: düzgün (qərəzsiz) təsadüfi qarışdırma
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
 const VocabularyTestPage = () => {
   const { recordResult } = useAuth();
   const [selectedLevel, setSelectedLevel] = usePersistedState('emq_voca_selectedLevel', null);
@@ -29,13 +39,10 @@ const VocabularyTestPage = () => {
 );
 
   const generateOptions = () => questions.map((q, index) => {
-    const otherMeanings = questions
-      .filter((_, idx) => idx !== index)
-      .map(q => q.meaning)
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 3);
-    const options = [q.meaning, ...otherMeanings];
-    return options.sort(() => 0.5 - Math.random());
+    const otherMeanings = shuffle(
+      questions.filter((_, idx) => idx !== index).map(q => q.meaning)
+    ).slice(0, 3);
+    return shuffle([q.meaning, ...otherMeanings]);
   });
 
   useEffect(() => {

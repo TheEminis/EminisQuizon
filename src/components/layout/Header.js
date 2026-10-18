@@ -75,8 +75,8 @@ const Header = () => {
   return (
     <header className="main-header">
       <div className="header-inner">
-        <h1 onClick={() => { navigate('/'); closeMenu(); }} style={{ cursor: 'pointer' }}>
-          EminisQuizon
+        <h1>
+          <Link to="/" onClick={closeMenu} className="logo-link">EminisQuizon</Link>
         </h1>
 
         {/* Desktop Nav */}
