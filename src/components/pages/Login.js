@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+import GoogleButton from "../common/GoogleButton";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
@@ -11,23 +11,6 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-
-  const handleGoogle = async () => {
-    setError("");
-    try {
-      const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
-      // Profil sənədi yoxdursa yarat (sayğaclara toxunmuruq)
-      setDoc(
-        doc(db, "users", user.uid),
-        { displayName: user.displayName || user.email, email: user.email },
-        { merge: true }
-      ).catch((e2) => console.error("Profil sənədi yazılmadı:", e2));
-      navigate("/");
-    } catch (err) {
-      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
-      setError("Google ilə giriş alınmadı. Yenidən cəhd edin.");
-    }
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -106,11 +89,9 @@ export default function Login() {
             Giriş et
           </button>
 
-          <button type="button" className="btn-primary" style={{ background: "transparent", border: "1px solid currentColor", color: "inherit" }} onClick={handleGoogle}>
-            Google ilə davam et
-          </button>
-
         </form>
+
+        <GoogleButton onError={setError} />
 
         <div className="auth-footer">
           Hesabınız yoxdur? <Link to="/register">Qeydiyyatdan keç</Link>

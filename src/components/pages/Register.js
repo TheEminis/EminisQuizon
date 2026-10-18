@@ -3,6 +3,8 @@ import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } 
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../firebase"; // firebase yolunu proyektinizə uyğun saxlayın
 import { useNavigate, Link } from "react-router-dom";
+import GoogleButton from "../common/GoogleButton";
+
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -155,6 +157,10 @@ export default function Register() {
             {loading ? <span className="spinner"></span> : "Qeydiyyatdan keç"}
           </button>
         </form>
+
+          <GoogleButton onError={setError} />
+
+        <div className="auth-footer"></div>
 
         <div className="auth-footer">
           Artıq hesabınız var? <Link to="/login">Giriş et</Link>
