@@ -12,5 +12,10 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  return currentUser ? children : <Navigate to="/login" replace />;
+  if (!currentUser) return <Navigate to="/login" replace />;
+
+  // Email təsdiqlənməyibsə təsdiq səhifəsinə yönləndir (Google hesabları avtomatik təsdiqlidir)
+  if (!currentUser.emailVerified) return <Navigate to="/verify-email" replace />;
+
+  return children;
 }

@@ -17,8 +17,8 @@ export default function Login() {
     setError("");
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigate("/");
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+      navigate(cred.user.emailVerified ? "/" : "/verify-email");
     } catch (err) {
       if (
         err.code === "auth/user-not-found" ||

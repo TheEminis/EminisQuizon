@@ -25,6 +25,7 @@ const LeaderboardPage = lazy(() => import('./components/pages/LeaderboardPage'))
 const Login = lazy(() => import('./components/pages/Login'));
 const Register = lazy(() => import('./components/pages/Register'));
 const ForgotPassword = lazy(() => import('./components/pages/ForgotPassword'));
+const VerifyEmail = lazy(() => import('./components/pages/VerifyEmail'));
 
 const PageLoader = () => (
   <div className="page-loading" role="status" aria-label="Yüklənir">
@@ -77,6 +78,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
               </Routes>
               </Suspense>
             </main>

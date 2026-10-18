@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "../../firebase"; // firebase yolunu proyektinizə uyğun saxlayın
+import { auth, db } from "../../firebase";
 import { useNavigate, Link } from "react-router-dom";
 import GoogleButton from "../common/GoogleButton";
-
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -43,43 +42,44 @@ export default function Register() {
     setLoading(true);
 
     try {
-  const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-  const user = userCredential.user;
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const user = userCredential.user;
 
-  // Ad-soyadı Firebase Auth profilinə yaz
-  await updateProfile(user, { displayName: name.trim() });
+      // Ad-soyadı Firebase Auth profilinə yaz
+      await updateProfile(user, { displayName: name.trim() });
 
-  // Təsdiq emaili (arxa planda; xəta olsa qeydiyyatı bloklamır)
-  sendEmailVerification(user).catch((e3) => console.warn("Təsdiq emaili göndərilmədi:", e3));
+      // Təsdiq emaili (arxa planda; xəta olsa qeydiyyatı bloklamır)
+      sendEmailVerification(user).catch((e3) =>
+        console.warn("Təsdiq emaili göndərilmədi:", e3)
+      );
 
-  // Qeydiyyat uğurludur - istifadəçini DƏRHAL ana səhifəyə yönləndir.
-  // Firestore profil sənədinin yaradılmasını gözləmirik ki, orada
-  // hər hansı xəta (məs. Firestore aktiv deyil / qaydalar) yönləndirməni bloklamasın.
-  navigate("/");
+      // Qeydiyyat uğurludur - istifadəçini email təsdiqi səhifəsinə yönləndir.
+      // Firestore profil sənədinin yaradılmasını gözləmirik ki, orada
+      // hər hansı xəta yönləndirməni bloklamasın.
+      navigate("/verify-email");
 
-  // İstifadəçi üçün Firestore-da profil sənədi yarat (test statistikası üçün)
-  // Bu, arxa planda, naviqasiyadan sonra baş verir.
-  setDoc(doc(db, "users", user.uid), {
-    displayName: name.trim(),
-    email: user.email,
-    testsTaken: 0,
-    correctAnswers: 0,
-    createdAt: serverTimestamp(),
-  }).catch((firestoreErr) => {
-    console.error("Firestore profil sənədi yaradılmadı:", firestoreErr);
-  });
-} catch (err) {
-  if (err.code === "auth/email-already-in-use") {
-    setError("Bu email ünvanı ilə artıq qeydiyyatdan keçilib.");
-  } else if (err.code === "auth/invalid-email") {
-    setError("Düzgün bir email ünvanı daxil edin.");
-  } else {
-    setError("Qeydiyyat zamanı xəta baş verdi. Yenidən cəhd edin.");
-  }
-} finally {
-  setLoading(false);
-}
-  }
+      // İstifadəçi üçün Firestore-da profil sənədi yarat (test statistikası üçün)
+      setDoc(doc(db, "users", user.uid), {
+        displayName: name.trim(),
+        email: user.email,
+        testsTaken: 0,
+        correctAnswers: 0,
+        createdAt: serverTimestamp(),
+      }).catch((firestoreErr) => {
+        console.error("Firestore profil sənədi yaradılmadı:", firestoreErr);
+      });
+    } catch (err) {
+      if (err.code === "auth/email-already-in-use") {
+        setError("Bu email ünvanı ilə artıq qeydiyyatdan keçilib.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Düzgün bir email ünvanı daxil edin.");
+      } else {
+        setError("Qeydiyyat zamanı xəta baş verdi. Yenidən cəhd edin.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="auth-container">
@@ -158,9 +158,7 @@ export default function Register() {
           </button>
         </form>
 
-          <GoogleButton onError={setError} />
-
-        <div className="auth-footer"></div>
+        <GoogleButton onError={setError} />
 
         <div className="auth-footer">
           Artıq hesabınız var? <Link to="/login">Giriş et</Link>
