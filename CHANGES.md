@@ -41,3 +41,8 @@
 - Yeni fayllar: `src/utils/attemptHistory.js`, `src/components/pages/StatsPage.js`. Tarixçə localStorage + Firestore (`users/{uid}/attempts`) üzərində saxlanır.
 - **Mütləq edin:** `firestore.rules` faylının yeni məzmununu Firebase Console → Firestore → Rules-a yapışdırıb Publish edin (əks halda tarixçə yalnız həmin brauzerdə qalır).
 - Köhnə testlər (bu yeniləmədən əvvəl) tarixçədə yoxdur, yalnız ümumi saya daxildir.
+
+# Vocabulary: hər səviyyədə 5 test × 15 söz
+- `src/data/vocabularyData.js`: hər səviyyədə 75 söz (köhnə 15 söz Test 1 olaraq qaldı, 60 yeni söz əlavə olundu).
+- `src/components/pages/VocabularyTestPage.js`: səviyyə seçildikdən sonra Test 1-5 seçimi çıxır; hər testin öz irəliləyişi saxlanılır.
+- Statistikada test adı `Vocabulary · A1 · Test 2` kimi görünür.
