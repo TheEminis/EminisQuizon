@@ -65,7 +65,10 @@ const LevelTestPage = () => {
     };
 
     setTestState({ ...testState, submitted: true, result: newResult });
-    recordResult(correctCount, levelTestQuestions.length);
+    recordResult(correctCount, levelTestQuestions.length, {
+      type: 'level',
+      label: `Level Test · ${band}`,
+    });
     recordLevelTestResult(newResult);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

@@ -31,7 +31,10 @@ const QuizComponent = ({ topic, level, onBack, getQuestions }) => {
       if (answers[i] === q.correct) newScore++;
     });
     setQuizState({ ...quizState, score: newScore, submitted: true });
-    recordResult(newScore, currentQuestions.length);
+    recordResult(newScore, currentQuestions.length, {
+      type: 'quiz',
+      label: `${topic.name} · ${level.id}`,
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

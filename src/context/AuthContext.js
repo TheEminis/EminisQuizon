@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, onSnapshot, increment, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { readLocalStats, writeLocalStats, addLocalTestResult, DEFAULT_STATS } from "../utils/localStats";
+import { newAttempt, addLocalAttempt } from "../utils/attemptHistory";
 
 const isBrowser = typeof window !== "undefined" && !!window.localStorage;
 const levelResultKey = (uid) => `emq_level_result_${uid || "guest"}`;
@@ -144,10 +145,20 @@ export const AuthProvider = ({ children }) => {
   // Bir testin nəticəsini qeyd edir. HƏMİŞƏ localStorage-a yazır (giriş
   // olsun-olmasın, refresh-dən sonra da qalsın deyə) və ekranı dərhal
   // yeniləyir; əlavə olaraq, giriş edilibsə, Firestore-a da yazır.
-  const recordResult = useCallback((correctCount, totalCount) => {
+  const recordResult = useCallback((correctCount, totalCount, meta) => {
     const uid = currentUser?.uid || null;
     const updatedLocal = addLocalTestResult(uid, correctCount, totalCount);
     setStats(updatedLocal);
+
+    // Tarixçə: hansı test, nə vaxt, neçə bal (Statistika səhifəsi üçün)
+    const attempt = newAttempt(correctCount, totalCount, meta);
+    addLocalAttempt(uid, attempt);
+    if (uid) {
+      const { id, ...data } = attempt;
+      setDoc(doc(db, "users", uid, "attempts", id), data).catch((err) => {
+        console.error("Test tarixçəsi Firestore-a saxlanılmadı:", err);
+      });
+    }
 
     if (uid) {
       const userRef = doc(db, "users", uid);

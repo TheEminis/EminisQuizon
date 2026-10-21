@@ -57,7 +57,10 @@ const ReadingTestPage = () => {
     }
     setProgress({ ...progress, score: newScore, submitted: true });
     if (currentTest) {
-      recordResult(newScore, currentTest.questions.length);
+      recordResult(newScore, currentTest.questions.length, {
+        type: 'reading',
+        label: `${currentTest.title} · ${selectedLevel}`,
+      });
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

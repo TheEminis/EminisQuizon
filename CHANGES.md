@@ -33,3 +33,11 @@
 
 7. Sayt Cloudflare **Workers** üzərindədir: `wrangler.jsonc` əlavə olundu (`/quiz` kimi linklər yeniləndikdə 404 verməsin deyə SPA rejimi). Worker adı `eminisquizon` olmalıdır, fərqlidirsə `name` sahəsini dəyişin. Deploy əmri: `npm run build && npx wrangler deploy`.
 8. Firebase Authorized domains-ə `eminisquizon.ibrahimliemin190.workers.dev` əlavə edin (Google girişi üçün mütləqdir).
+
+# Statistika səhifəsi (`/stats`)
+- Profil menyusundan (avatar → "📊 Statistics") açılır; hər istifadəçi yalnız öz statistikasını görür.
+- Hər tamamlanan test (Quiz, Vocabulary, Reading, Listening, Level Test) tarixçəyə yazılır: nə, nə vaxt, neçə bal.
+- Göstərilir: ümumi test sayı, düzgünlük %, düzgün/səhv, aktiv günlər, ardıcıl gün seriyası, son 14 gün qrafiki, kateqoriya üzrə faiz, filtrli tarixçə.
+- Yeni fayllar: `src/utils/attemptHistory.js`, `src/components/pages/StatsPage.js`. Tarixçə localStorage + Firestore (`users/{uid}/attempts`) üzərində saxlanır.
+- **Mütləq edin:** `firestore.rules` faylının yeni məzmununu Firebase Console → Firestore → Rules-a yapışdırıb Publish edin (əks halda tarixçə yalnız həmin brauzerdə qalır).
+- Köhnə testlər (bu yeniləmədən əvvəl) tarixçədə yoxdur, yalnız ümumi saya daxildir.

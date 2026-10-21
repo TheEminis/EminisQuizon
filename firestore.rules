@@ -23,6 +23,23 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Test tarixçəsi (Statistika səhifəsi): yalnız sahibi oxuya və yeni qeyd əlavə edə bilər
+    match /users/{uid}/attempts/{attemptId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['type', 'label', 'correct', 'total', 'at'])
+        && request.resource.data.type in ['quiz', 'voca', 'reading', 'listening', 'level']
+        && request.resource.data.label is string
+        && request.resource.data.label.size() <= 120
+        && request.resource.data.correct is int
+        && request.resource.data.total is int
+        && request.resource.data.total >= 1 && request.resource.data.total <= 200
+        && request.resource.data.correct >= 0
+        && request.resource.data.correct <= request.resource.data.total
+        && request.resource.data.at is int;
+      allow update, delete: if false;
+    }
+
     // İctimai leaderboard: bütün giriş etmişlər oxuya bilər, yalnız ad + bal saxlanır
     match /leaderboard/{uid} {
       allow read: if signedIn();

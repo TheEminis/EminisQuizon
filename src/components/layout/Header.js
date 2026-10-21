@@ -148,6 +148,9 @@ const Header = () => {
                     </div>
                   </div>
 
+                  <Link to="/stats" className="profile-dropdown-link" onClick={closeProfile}>
+                    📊 Statistics
+                  </Link>
                   <Link to="/leaderboard" className="profile-dropdown-link" onClick={closeProfile}>
                     🏆 Leaderboard
                   </Link>
@@ -215,6 +218,9 @@ const Header = () => {
                   )}
                 </div>
               </div>
+              <Link to="/stats" className="profile-dropdown-link" onClick={closeMenu}>
+                📊 Statistics
+              </Link>
               <button className="profile-logout-btn" onClick={handleLogout}>
                 Log out
               </button>

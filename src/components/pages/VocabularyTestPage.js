@@ -71,7 +71,10 @@ const VocabularyTestPage = () => {
       if (answers[i] === q.meaning) s++;
     });
     setProgress({ ...progress, score: s, submitted: true });
-    recordResult(s, questions.length);
+    recordResult(s, questions.length, {
+      type: 'voca',
+      label: `Vocabulary · ${selectedLevel}`,
+    });
   };
 
   const handleTryAgain = () => {

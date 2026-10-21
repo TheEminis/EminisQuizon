@@ -22,6 +22,7 @@ const ReadingTestPage = lazy(() => import('./components/pages/ReadingTestPage'))
 const ListeningTestPage = lazy(() => import('./components/pages/ListeningTestPage'));
 const LevelTestPage = lazy(() => import('./components/pages/LevelTestPage'));
 const LeaderboardPage = lazy(() => import('./components/pages/LeaderboardPage'));
+const StatsPage = lazy(() => import('./components/pages/StatsPage'));
 const Login = lazy(() => import('./components/pages/Login'));
 const Register = lazy(() => import('./components/pages/Register'));
 const ForgotPassword = lazy(() => import('./components/pages/ForgotPassword'));
@@ -74,6 +75,9 @@ const App = () => {
                 } />
                 <Route path="/leaderboard" element={
                   <ProtectedRoute><LeaderboardPage /></ProtectedRoute>
+                } />
+                <Route path="/stats" element={
+                  <ProtectedRoute><StatsPage /></ProtectedRoute>
                 } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
