@@ -17,7 +17,7 @@ const HomePage = () => {
   return (
     <>
       <div className="hero">
-        <h2>Learn Smarter. Grow Faster.</h2>
+        <h2>Pampers almağı unutma</h2>
         <p>EminisQuizon is a modern educational platform focused on clarity, motivation, and intelligent learning design. Master English grammar, expand your vocabulary, and test your knowledge with interactive quizzes.</p>
         <div className="hero-buttons">
           <Link to="/quiz" className="hero-btn primary">Start Quiz</Link>

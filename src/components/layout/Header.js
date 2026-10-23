@@ -76,7 +76,7 @@ const Header = () => {
     <header className="main-header">
       <div className="header-inner">
         <h1>
-          <Link to="/" onClick={closeMenu} className="logo-link">EminisQuizon</Link>
+          <Link to="/" onClick={closeMenu} className="logo-link">Emcant JR</Link>
         </h1>
 
         {/* Desktop Nav */}
